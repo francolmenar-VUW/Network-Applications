@@ -24,52 +24,78 @@ char upcase(char ch){
 }
 
 char* fixkey(char* s){
-/*char* noRepeat (char* key){
-void printLetters(char* word, char letter){
-printf("The character received is: %c\nThe next character in the alphabet is: %c\n",word[0],word[0+1]+1);
+  int i, j;
+  char plain[26]; // assume key < length of alphabet, local array on stack, will go away!
+
+  for(i = 0, j = 0; i < strlen(s); i++){
+    if(isalpha(s[i])){
+      plain[j++] = upcase(s[i]);
+    }
+  }
+  plain[j] = '\0'; 
+  return strcpy(s, plain);
 }
 
-  /* This function needs to build an array of mappings in the 'encode' array from plaintext characters 
+/* It deletes the repeated letters of an input string
+	It copy the correct word into a new string which is returned
+	The input string is not changed
+*/
+char* noRepeat (char* key){
+	int boolean = 0;//It represent if the letter is repeated or not
+	int aux = 0;//It is the counter which will be use to know in which position insert the letters in the new string
+	char* check = (char*)malloc(sizeof(char)*strlen(key));// I allocate the maximum amount of memory that the string can have
+ 	for(int i = 0; i < strlen(key); i++){// I go through all the key's letters
+ 	boolean = 0;//At the beginning of every iteration, we set to false the boolean in order to search for the letter
+  		for(int j = 0; j < strlen(key); j++){// I check all the already checked letters
+    		if (key[i] == check[j]){//It is repeated
+   			boolean = 1;//boolean true
+    		}
+  		}
+  			if(boolean == 0){//It is not repeated
+  				check[aux]=key[i]; //I assign the new letter to the correct key
+  				aux++;
+  			}
+		}
+	return check;
+}
+
+
+  /* This function needs to build an array of mappings in the 'encode' array from plaintext characters
+  to encypered characters.  The encode array will be indexed by the plaintext char.  To 
+  make this a useful 0-26 index for the array, 'A' will be stubtracted from it (yes you
+  can do this in C).  You can see this in the main(){} below.  The values in the array 
+  will be the cipher value, in the example at the top A -> H, B -> J, etc.
+  You are implementing a Caesar 1 & 2 combo Cypher as given in handout.
+  */ 
 void buildtable (char* key, char* encode){
-	//printLetters("hola",'c');
   int keyLenght = strlen(key);//The length of the key
   int mod = 26; //It is the auxiliar variable in order to perform the modular operations
   int aux;
   int boole = 0; //boolean to know if the key has been copied or not
-  printf("The key is %s and the length is %i\n", key, keyLenght);
-  
   fixkey(key); // fix the key, i.e., uppercase and remove whitespace and punctuation
-  //printf("The fixed key is %s\n", key);
-  
   char* check = (char*)malloc(sizeof(char)*strlen(key));// I allocate the maximum amount of memory that the string can have
   strcpy(check, noRepeat(key));
-  //printf("The fixed key without repeated letters is %s\n", check);
   
   for (int i = 0; i < 26; i++){//loop to set the plaintext letters to the cipher ones
   		if(i == keyLenght-1 ){// We have to place the key without repeated letters here
   			for (int z = 0; z < strlen(check); z++){ //I iterate all the positions of the new key
   				encode[i+z] = check[z];// I copy the key
   			}
-  			//printf("Z loop has finished\n");
-  			i += strlen(check) ;//I sum the length of the new key in order to know in which position of the decode string I am
+  			i += strlen(check) -1;//I sum the length of the new key in order to know in which position of the decode string I am
   			boole = 1;//boolean to true
   		}
   		else if(boole == 1) {//The key has been copied
-     	//printf("position %i\n", i);
-	     	
- 		for(int z = 1; z < 27; z++){
- 			printf("%c ",encode[z]);
- 		}
- 		
-     	printf("\n");
-     	for(int z = 1; z < 27; z++){
-     		if( (strchr(encode,encode[i-1]+z)) == NULL ){//The next letter is not in the encode string already
-     				printf("The actual %i character is:%c\tand the previous one is: %c\n",i,encode[i-2],encode[i-3]);
-					printf("Letter %c is introduced in the encoded table\n", encode[i-1]+1);
-					encode[i-1] = encode[i-2]+z;
-					z = 27;
+     		for(int z = 1; z < 27; z++){
+     			if( (strchr(encode,encode[i-1]+z)) == NULL ){//The next letter is not in the encode string already
+						if((encode[i-1]+z) > 'Z'){//We start again by the alphabet 
+							encode[i] = (encode[i-1]+z)-26;//I assign the next correct letter to the encode string
+						}
+						else{
+							encode[i] = encode[i-1]+z;//I assign the next correct letter to the encode string
+						}
+						z = 27;
+     			}
      		}
-     	}
   		}
   		else{//Before inserting the key
   			aux = (keyLenght + i) % mod; //module operation
