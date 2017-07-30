@@ -70,7 +70,7 @@ char* noRepeat (char* key){
 void buildtable (char* key, char* encode){
   int keyLenght = strlen(key);//The length of the key
   int mod = 26; //It is the auxiliar variable in order to perform the modular operations
-  int aux;
+  int aux, lenghtZloop = 0;
   int boole = 0; //boolean to know if the key has been copied or not
   fixkey(key); // fix the key, i.e., uppercase and remove whitespace and punctuation
   char* check = (char*)malloc(sizeof(char)*strlen(key));// I allocate the maximum amount of memory that the string can have
@@ -79,9 +79,13 @@ void buildtable (char* key, char* encode){
   for (int i = 0; i < 26; i++){//loop to set the plaintext letters to the cipher ones
   		if(i == keyLenght-1 ){// We have to place the key without repeated letters here
   			for (int z = 0; z < strlen(check); z++){ //I iterate all the positions of the new key
-  				encode[i+z] = check[z];// I copy the key
+				if( (strchr(encode,check[z])) == NULL ){//The next letter is not in the encode string already
+					encode[i+lenghtZloop] = check[z];// I copy the key
+					lenghtZloop++;//counter of letters copied
+				}		
+  					//encode[i+z] = check[z];// I copy the key
   			}
-  			i += strlen(check) -1;//I sum the length of the new key in order to know in which position of the decode string I am
+  			i += lenghtZloop -1;//I sum the length of the new key in order to know in which position of the decode string I am
   			boole = 1;//boolean to true
   		}
   		else if(boole == 1) {//The key has been copied
