@@ -58,19 +58,16 @@ int calculateSizeNeeded(char* sentence, int n){
 //I have to check when there is more keys than the possible amount in the real world
 void split(char** array, char* sentence, int n, int size){
   int aux = 0;//It is an auxiliar used to go through the string
-
-  for(int ii = 0; ii < size-1; ii++){//size -1 because of the "\0" char. I go through the string
+  for(int ii = 0; ii < size-1; ii++){//size -1 because of the "\0 char. I go through the string
     for(int jj = 0; jj < n; jj++){//I iterate through all the strings
       array[jj][ii] = sentence[aux];//I copy a letter of the input string into the correct one
       aux++;
     }   
   }
-
   for(int ii = 0; ii < n; ii++){//I copy in the last position of the strings the end of string symbol
-    array[ii][size-1] = "\0";
+    array[ii][size-1] = '\0';
   }
 }
-
 
 int main(int argc, char **argv){
 
@@ -117,7 +114,9 @@ int main(int argc, char **argv){
   // Your code here...
 
   int size = calculateSizeNeeded(text, n);//I calculate the space needed for each string
-  char array[n][size];//I create the array of strings
+  char **array = malloc(sizeof(char*)*n);//I create the array of strings
+  for (i = 0; i < n; ++i) {
+   	 array[i] = (char *)malloc(size+1);//Allocation of the needed memory for each string
+	}
   split(array, text, n, size);//I split the text and store it into partial strings
-
 }
