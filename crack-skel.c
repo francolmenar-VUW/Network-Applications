@@ -13,7 +13,7 @@
    LAB: 2
 
    This program applies a basic frequency analysis on a cyphertext.  It has been extened over the 2014 version to
-   solve polyalphabetic cyphers - by brute force.  In this case, it applies the frequency analysis for different 
+   solve polyalphabetic cyphers - by brute force.  In this case, it applies the frequency analysis for different
    numbers of n keys (polyalphabetic Caeser).  Obviously it will need a cypher of about n times
    the typical length for a monoalphabetic cypher.
 
@@ -45,7 +45,7 @@ char upcase(char ch){
 }
 
 /*Calculate the space needed to create n strings using an input string
-  It returns the size that all the strings need at most  
+  It returns the size that all the strings need at most
 */
 int calculateSizeNeeded(char* sentence, int n){
   if(strlen(sentence) % n == 0) return (strlen(sentence) / n) + 1;//The +1 is for the "/0" at the end of the string
@@ -62,12 +62,63 @@ void split(char** array, char* sentence, int n, int size){
     for(int jj = 0; jj < n; jj++){//I iterate through all the strings
       array[jj][ii] = sentence[aux];//I copy a letter of the input string into the correct one
       aux++;
-    }   
+    }
   }
   for(int ii = 0; ii < n; ii++){//I copy in the last position of the strings the end of string symbol
     array[ii][size-1] = '\0';
   }
 }
+
+/*It counts the occurrences of each letter of the input string
+*/
+void count(char* string, int* counter){
+  int aux;
+  for(int ii = 0; ii < strlen(string); ii++){//I check all the letters of the string
+    aux = 'A' - string[ii];//I calculate what letter is actually in the string
+    counter[aux]++;//I add one to the position of the letter that I have read
+  }
+}
+
+/*It receives a counter with the occurrences of the letters and a string
+  and it order the alphabet letters in the string in order of maximum occurrence
+*/
+void orderArray(int* counter, char* letterOrder){
+  int value = 0, pos = 0;//aux to know which letter is the maximum
+  for(int ii = 0; ii < 26; ii++){//I iterate through all the possitions of the counter array
+    for(int jj = 0; jj < 26; jj++){
+      if(value < counter[jj]){//There is a new maximum
+        value = counter[jj];//I assign the new maximum value
+        pos = jj;//I store the position of the new maximum
+      }
+    }
+    counter[pos] = -1;//In order to not count it again in the next iteration
+    letterOrder[ii] = 'A' + pos;//I store the most seen letter in the right place
+    pos = 0;//I reset the pos variable
+  }
+}
+
+/*It changes the letters of the original string according to the occurrences of each letter
+*/
+void changeAction(char* string, char* letterOrder){
+
+
+  //change letters
+}
+
+/*It changes the letters of an input string with the ones that are most common in English
+  It receives an array of strings and the number of strings
+*/
+void change(char** array, int n){
+	int counter[26];//It is the counter of the occurrence of the letters
+  char letterOrder[26];//It is the string that will have the letters ordered by occurrence
+  for(int ii = 0; ii < n; ii++){//I count the occurrences of each letter of each string
+    count(array[ii], counter);//I call to the count method
+    orderArray(counter, letterOrder);//I order the letterOrder string
+    changeAction(array[ii],letterOrder);//I call to the method that actually change the letters of the string
+  }
+}
+
+
 
 int main(int argc, char **argv){
 
@@ -78,7 +129,7 @@ int main(int argc, char **argv){
   int n, i;//n is the number of keys4524
 
   if(argc > 1 && (n = atoi(argv[1])) > 0); else{ fprintf(stderr,"Malformed argument, use: crack [n], n > 0\n"); exit(-1);} // get the command line argument n
-  
+
   // Now read TEXT_SIZE or feof worth of characters (whichever is smaller) and convert to uppercase as we do it.
   // Added: changed to count frequencies as we read it in
 
@@ -94,10 +145,10 @@ int main(int argc, char **argv){
    * What you need to do is as follows:
    *   1. create a for-loop that will check key lengths from 1..n
    *   2. for each i <= n, spit the cypher text into i sub-texts.  For i = 1, 1 subtext, for i = 2, 2 subtexts, of alternating characters etc.
-   *   3. for each subtext: 
-   *          a. count the occurance of each letter 
+   *   3. for each subtext:
+   *          a. count the occurance of each letter
    *          b. then map this onto the CHFREQ, to create a map between the sub-text and english
-   *          c. apply the new map to the subtext 
+   *          c. apply the new map to the subtext
    *   4. merge the subtexts
    *   5. output the 'possibly' partially decoded text to stdout.  This will only look OK if i was the correct number of keys
    *
@@ -110,7 +161,7 @@ int main(int argc, char **argv){
    * getting too long, double check you're on the right track.
    *
    */
-  
+
   // Your code here...
 
   int size = calculateSizeNeeded(text, n);//I calculate the space needed for each string
@@ -119,4 +170,5 @@ int main(int argc, char **argv){
    	 array[i] = (char *)malloc(size+1);//Allocation of the needed memory for each string
 	}
   split(array, text, n, size);//I split the text and store it into partial strings
+  change(array, n);//I change the letters of the cipher text to the ones that should correspond in the plain text
 }
