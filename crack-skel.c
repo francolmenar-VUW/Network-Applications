@@ -73,9 +73,18 @@ void split(char** array, char* sentence, int n, int size){
 */
 void count(char* string, int* counter){
   int aux;
+  printf("\n\tCount method\n");
   for(int ii = 0; ii < strlen(string); ii++){//I check all the letters of the string
-    aux = 'A' - string[ii];//I calculate what letter is actually in the string
+    aux = string[ii] - 'A' ;//I calculate what letter is actually in the string
+    //printf("I'm going to add 1 to pos %i because of the char %c\n",aux,string[ii] );
     counter[aux]++;//I add one to the position of the letter that I have read
+    //printf("Value of position %i of the counter array is %i\n",aux,counter[aux]);
+  }
+}
+
+void resetIntArray(int* counter){
+  for(int zz = 0; zz < 26; zz++){//I initialize the values of the array to avoid problems
+  counter[zz] = 0;
   }
 }
 
@@ -98,11 +107,25 @@ void orderArray(int* counter, char* letterOrder){
 }
 
 /*It changes the letters of the original string according to the occurrences of each letter
+  letterOrder is a string with the letters ordered by occurrence
 */
 void changeAction(char* string, char* letterOrder){
+  char* aux = (char *)malloc(sizeof(char)* strlen(string));//auxiliar string
+  for(int ii = 0; ii < 26; ii++){//I change all the letters of the alphabet`
+    for(int jj = 0; jj < strlen(string); jj++){//I check all the letters of the string`
+      if(string[jj] == letterOrder[ii]){//It is the letter we want to change`
+        aux[jj] = CHFREQ[ii];//I copy the letter which is suposed to be the correct one into the aux string
+      }
+    }
+  }
+  strcpy(string,aux);//I copy the correct changed string to the original string
+}
 
-
-  //change letters
+void intToString(int* integer){
+  for(int zz = 0; zz < 26; zz++){
+    printf("%i, ", integer[zz]);
+  }
+  printf("\n");
 }
 
 /*It changes the letters of an input string with the ones that are most common in English
@@ -112,7 +135,10 @@ void change(char** array, int n){
 	int counter[26];//It is the counter of the occurrence of the letters
   char letterOrder[26];//It is the string that will have the letters ordered by occurrence
   for(int ii = 0; ii < n; ii++){//I count the occurrences of each letter of each string
+    resetIntArray(counter);//I set to 0 all the values of the counter
     count(array[ii], counter);//I call to the count method
+    printf("Counter (after) in iteration %i is:\n",ii);
+    intToString(counter);
     orderArray(counter, letterOrder);//I order the letterOrder string
     changeAction(array[ii],letterOrder);//I call to the method that actually change the letters of the string
   }
