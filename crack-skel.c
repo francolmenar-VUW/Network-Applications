@@ -75,10 +75,10 @@ void count(char* string, int* counter){
   int aux;
   printf("\n\tCount method\n");
   for(int ii = 0; ii < strlen(string); ii++){//I check all the letters of the string
-    aux = string[ii] - 'A' ;//I calculate what letter is actually in the string
-    //printf("I'm going to add 1 to pos %i because of the char %c\n",aux,string[ii] );
-    counter[aux]++;//I add one to the position of the letter that I have read
-    //printf("Value of position %i of the counter array is %i\n",aux,counter[aux]);
+    if(string[ii] >= 'A' && string[ii] <= 'Z'){//I check that it is a letter
+      aux = string[ii] - 'A' ;//I calculate what letter is actually in the string
+      counter[aux]++;//I add one to the position of the letter that I have read
+    }
   }
 }
 
@@ -88,13 +88,14 @@ void resetIntArray(int* counter){
   }
 }
 
+
 /*It receives a counter with the occurrences of the letters and a string
   and it order the alphabet letters in the string in order of maximum occurrence
 */
 void orderArray(int* counter, char* letterOrder){
-  int value = 0, pos = 0;//aux to know which letter is the maximum
+  int value = -1, pos = 0;//aux to know which letter is the maximum
   for(int ii = 0; ii < 26; ii++){//I iterate through all the possitions of the counter array
-    for(int jj = 0; jj < 26; jj++){
+    for(int jj = 0; jj < 26; jj++){//I check all the letters
       if(value < counter[jj]){//There is a new maximum
         value = counter[jj];//I assign the new maximum value
         pos = jj;//I store the position of the new maximum
@@ -103,6 +104,7 @@ void orderArray(int* counter, char* letterOrder){
     counter[pos] = -1;//In order to not count it again in the next iteration
     letterOrder[ii] = 'A' + pos;//I store the most seen letter in the right place
     pos = 0;//I reset the pos variable
+    value = -1;
   }
 }
 
@@ -110,10 +112,16 @@ void orderArray(int* counter, char* letterOrder){
   letterOrder is a string with the letters ordered by occurrence
 */
 void changeAction(char* string, char* letterOrder){
-  char* aux = (char *)malloc(sizeof(char)* strlen(string));//auxiliar string
+  char* aux = (char *)malloc(sizeof(char)* strlen(string) +1);//auxiliar string
+  aux[strlen(string)] = '\0';
+  for(int ii = 0; ii < strlen(string); ii++){//I copy the characrters that are not letters
+    if(string[ii]< 'A' || string[ii] > 'Z'){
+      aux[ii] = string[ii];
+    }
+  }
   for(int ii = 0; ii < 26; ii++){//I change all the letters of the alphabet`
-    for(int jj = 0; jj < strlen(string); jj++){//I check all the letters of the string`
-      if(string[jj] == letterOrder[ii]){//It is the letter we want to change`
+    for(int jj = 0; jj < strlen(string); jj++){//I check all the letters of the string
+      if(string[jj] == letterOrder[ii]){//It is the letter we want to change
         aux[jj] = CHFREQ[ii];//I copy the letter which is suposed to be the correct one into the aux string
       }
     }
@@ -132,15 +140,19 @@ void intToString(int* integer){
   It receives an array of strings and the number of strings
 */
 void change(char** array, int n){
-	int counter[26];//It is the counter of the occurrence of the letters
-  char letterOrder[26];//It is the string that will have the letters ordered by occurrence
+  int counter[26];//It is the counter of the occurrence of the letters
+  char letterOrder[27];//It is the string that will have the letters ordered by occurrence
+  letterOrder[26] = '\0';
   for(int ii = 0; ii < n; ii++){//I count the occurrences of each letter of each string
+    printf("\nThe initial array is: %s\n", array[ii]);
     resetIntArray(counter);//I set to 0 all the values of the counter
     count(array[ii], counter);//I call to the count method
     printf("Counter (after) in iteration %i is:\n",ii);
-    intToString(counter);
+    intToString(counter);//Print the counter array
     orderArray(counter, letterOrder);//I order the letterOrder string
+    printf("\nThe letter array ordered is: %s\n", letterOrder);
     changeAction(array[ii],letterOrder);//I call to the method that actually change the letters of the string
+    printf("\nThe final array with the letters chenged is: %s\n", array[ii]);
   }
 }
 
