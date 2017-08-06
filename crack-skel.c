@@ -23,7 +23,6 @@ int calculateSizeNeeded(char* sentence, int n){
 }
 
 /*It splits an input string into n substrings alternating the leters
-  It is returned an n array with all the substrings
 */
 void split(char** array, char* sentence, int n, int size){
   int aux = 0;//It is an auxiliar used to go through the string
