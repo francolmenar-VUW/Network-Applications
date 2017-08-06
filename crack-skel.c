@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <string.h>
-#define TEXT_SIZE 200000  // Note, the longer the text the more likely you will get a good 'decode' from the start.
+#define TEXT_SIZE 200000
 #define ALEN 26         // Number of chars in ENGLISH alphabet
 #define CHFREQ "ETAONRISHDLFCMUGYPWBVKJXQZ" // Characters in order of appearance in English documents.
 #define ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -53,7 +53,7 @@ void count(char* string, int* counter){
 /*It sets all the values of an int array to 0
 */
 void resetIntArray(int* counter){
-  for(int zz = 0; zz < 26; zz++){//I initialize the values of the array to avoid problems
+  for(int zz = 0; zz < ALEN; zz++){//I initialize the values of the array to avoid problems
     counter[zz] = 0;
   }
 }
@@ -63,7 +63,7 @@ void resetIntArray(int* counter){
 */
 void orderArray(int* counter, char* letterOrder){
   int value = -1, pos = 0;//aux to know which letter is the maximum
-  for(int ii = 0; ii < 26; ii++){//I iterate through all the possitions of the counter array
+  for(int ii = 0; ii < ALEN; ii++){//I iterate through all the possitions of the counter array
     for(int jj = 0; jj < 26; jj++){//I check all the letters
       if(value < counter[jj]){//There is a new maximum
         value = counter[jj];//I assign the new maximum value
@@ -88,7 +88,7 @@ void changeAction(char* string, char* letterOrder){
       aux[ii] = string[ii];
     }
   }
-  for(int ii = 0; ii < 26; ii++){//I change all the letters of the alphabet`
+  for(int ii = 0; ii < ALEN; ii++){//I change all the letters of the alphabet`
     for(int jj = 0; jj < strlen(string); jj++){//I check all the letters of the string
       if(string[jj] == letterOrder[ii]){//It is the letter we want to change
         aux[jj] = CHFREQ[ii];//I copy the letter which is suposed to be the correct one into the aux string
@@ -103,9 +103,9 @@ void changeAction(char* string, char* letterOrder){
   It receives an array of strings and the number of strings
 */
 void change(char** array, int n){
-  int counter[26];//It is the counter of the occurrence of the letters
-  char letterOrder[27];//It is the string that will have the letters ordered by occurrence
-  letterOrder[26] = '\0';
+  int counter[ALEN];//It is the counter of the occurrence of the letters
+  char letterOrder[ALEN +1];//It is the string that will have the letters ordered by occurrence
+  letterOrder[ALEN] = '\0';
   for(int ii = 0; ii < n; ii++){//I count the occurrences of each letter of each string
     resetIntArray(counter);//I set to 0 all the values of the counter
     count(array[ii], counter);//I call to the count method
