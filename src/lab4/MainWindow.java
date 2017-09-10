@@ -6,6 +6,7 @@ package lab4;
 */
 import ecs100.*;
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.io.*;
 import java.util.Vector;
@@ -34,21 +35,45 @@ public class MainWindow{
 	    }
 
 	    /**
-	     *  1. initialise
+	     *  1. initialise DONE
 	        2. update neighbours
 	     */
 	    public void start()
 	    {
 	    	initializeVector();
-	    	/*
-	        for(Node n : this.nodes)
-	        {
-
+	        for(Node n : this.nodes){//I check all the nodes of the graph
+	        	sendInfoToUpdate(n);
 	        }
-	        */
 	    }
 
 	    /**
+	     * It sends the routing table to its neighbours to update them in case it is necessary
+	     * @param node: the node of which is the information we will send
+	     */
+	    private void sendInfoToUpdate(Node node) {
+	    	RoutingTable routingTable = node.getRoutingTable();//Routingtable of the node
+	        for(NeighbourDestinations neighbourInfo : routingTable.getNeighbourToDestination()){//I check all the columns of the Routingtable
+	        	Node neighbour = returnNodeByName(neighbourInfo.getNeighbourName());//I obtain the node which is the same as the header of the column of the Routingtable
+	        	//updateNode(neighbour, neighbourInfo);I update the info of the node
+	        }
+		}
+
+	    /**
+	     * It returns a certain node of the vector of nodes given its name
+	     * @param name: the name of the node we want to obtain
+	     * @return the node we want to obtain
+	     */
+
+		private Node returnNodeByName(String name) {
+			for(int i = 0; i < nodes.size(); i++) {
+        		if(nodes.get(i).getName().equals(name)) {
+        			return nodes.get(i);
+        		}
+        	}
+			return null;
+		}
+
+		/**
 	     * It loads the topology map from user choice
 	     */
 	    public void load()
@@ -100,6 +125,7 @@ public class MainWindow{
 	     */
 	    public void draw()
 	    {
+			UI.clearGraphics();
 	        for (Node n : this.nodes)
 	        {
 	            UI.setColor(Color.green);
@@ -123,9 +149,13 @@ public class MainWindow{
 	                    }
 
 	                if(neighbour != null) // there is a neighbour
-	                {
-	                    UI.drawLine(n.getxPos()+20, n.getyPos()+20, neighbour.getxPos()+20, neighbour.getyPos()+20);
-	                    //UI.drawString(s, n.getxPos()+20, n.getyPos()+20);
+	                {	//Variables of the points
+	                	int nX = n.getxPos()+20, nY = n.getyPos()+20, neighbourX = neighbour.getxPos()+20, neighbourY = neighbour.getyPos()+20;
+	                    UI.drawLine(nX, nY, neighbourX, neighbourY);
+	                    String cost = Integer.toString(n.getNeighbours().get(s));
+	                    nX = (int) ((nX + neighbourX) / 2);
+	                    nY = (int) ((nY + neighbourY) / 2);
+	                    UI.drawString(cost, nX, nY);
 
 	                }
 
@@ -137,7 +167,6 @@ public class MainWindow{
 	     * It ask to the user to show a specific RoutingTable
 	     */
 	    public void showRoutingTables() {
-	    	/*
 	    	UI.askString("What Routingtable do you want to display?");
 	    	String routingtableToPrint = UI.next();
 	    	for(Node n : nodes) {//I iterate through all the nodes
@@ -145,17 +174,11 @@ public class MainWindow{
 	    			n.printRoutingTable();
 	    		}
 			}
-			*/
-	    	load();
-	    	start();
-	    	for(Node n : nodes) {//I iterate through all the nodes
-	    		if(n.getName().equals("A")) {//If it is the desired node
-	    			n.printRoutingTable();
-	    		}
-			}
 	    }
 
 	    public void redraw() {
+	    	load();
+	    	start();
 	    	for(Node n : nodes) {//I iterate through all the nodes
 	    		if(n.getName().equals("A")) {//If it is the desired node
 	    			n.printRoutingTable();

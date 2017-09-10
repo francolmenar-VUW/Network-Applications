@@ -1,5 +1,6 @@
 package lab4;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class RoutingTable {
 		neighbourToDestination = new ArrayList<NeighbourDestinations>();
 		for(HashMap.Entry<String, Integer> n : neighbours.entrySet()) {//I iterate through all the entries of the HashMap
 			newNeighbour(n.getKey(), n.getValue());//I create a new column of the RoutingTable
+
 		}
 	}
 
@@ -54,6 +56,7 @@ public class RoutingTable {
 	 */
 	public void printTable(String name) {
 		UI.clearGraphics();
+		UI.setColor(Color.black);
 		drawTable(name);
 	}
 
@@ -108,12 +111,15 @@ public class RoutingTable {
 		int x = sideOfSquare, y = sideOfSquare ;//The start coordinates of the table
 		NeighbourDestinations currentColumn = neighbourToDestination.get(i);
 		for(int j = 0; j < destinations.length; j++) {
-			String cost = Integer.toString(currentColumn.getDestinations().get(destinations[i]));//I get the current cost
+			System.out.println("Costs of destination " + destinations[j] + ": " + currentColumn.getDestinations().get(destinations[j]));
+			System.out.println(destinations[j]);
+			String cost = Integer.toString(currentColumn.getDestinations().get(destinations[j]));//I get the current cost
 			if(j == 0) {
-				UI.drawString(cost, i * x, y * 2);
+				System.out.println(cost + "First");
+				drawString(cost, (i + 2)* x, y + sideOfSquare);
 			}
 			else {
-				UI.drawString(cost, i * x, y * j);
+				drawString(cost, (i + 2) * x, (y * j) + sideOfSquare * 2);
 			}
 		}
 	}

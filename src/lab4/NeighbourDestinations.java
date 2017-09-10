@@ -8,7 +8,7 @@ public class NeighbourDestinations {
 
 	public NeighbourDestinations(String name, Integer cost, String[] destinations) {
 		this.neighbourName = name;
-		initializeDestinations(name, cost, destinations);
+		initializeDestinations(cost, destinations);
 	}
 
 	/**
@@ -17,11 +17,14 @@ public class NeighbourDestinations {
 	 * @param cost: cost to go to the node
 	 * @param destinations: all the possible destinations
 	 */
-	private void initializeDestinations(String name, Integer cost, String[] destinations) {
+	private void initializeDestinations(Integer cost, String[] destinations) {
 		this.destinations = new HashMap<String, Integer>();
+		System.out.println(cost + this.neighbourName);
 		for(String s : destinations) {
-			if(name.equals(s)) {//If it is the same name we have to save the cost of it
-				this.destinations.put(name, cost);//I store the new cost
+			System.out.println("String " + s + " in the column "+ this.neighbourName);
+			if(this.neighbourName.equals(s)) {//If it is the same name we have to save the cost of it
+				System.out.println("Inside");
+				this.destinations.put(this.neighbourName, cost);//I store the new cost
 			}
 			else {//The cost is unknown
 				this.destinations.put(s, -1);//I store the -1 as - infinity
