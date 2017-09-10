@@ -11,18 +11,16 @@ package lab4;
  */
 
 import java.util.HashMap;
-import java.util.Vector;
-import ecs100.*;
+
+import ecs100.UI;
 
 public class Node
 {
     private String name; // the node name
     private int xPos, yPos; // the positions to draw the node
     private HashMap<String, Integer> neighbours; // the list of neighbours
+    private RoutingTable routingTable;
 
-
-    // Think of what data structure to use to store the routing table
-    // 2D array, vector, priorityQueue, etc.
 
     /**
      * @param n: the node name
@@ -37,15 +35,14 @@ public class Node
         this.neighbours = new HashMap<String, Integer>();
     }
 
-
     /**
      * Initializes the routing table
+     * @param destinations: It is the name of all the posible destinations
      */
-    public void initialise()
+    public void initialise(String[] destinations)
     {
-
+        this.routingTable = new RoutingTable(neighbours, destinations);
     }
-
 
     /**
      * Updates the routing table
@@ -54,7 +51,6 @@ public class Node
     public void updateRoutingTable(String fromNode, String nodeData, int newCost)
     {
     }
-
 
     public void simulateNewLink(String fromNode, String nodeData, int newCost)
     {
@@ -67,6 +63,13 @@ public class Node
     public void addNeighbour(String nodeName, int cost)
     {
         this.neighbours.put(nodeName, cost);
+    }
+
+    /**
+     * It prints the RoutingTable
+     */
+    public void printRoutingTable() {
+    	routingTable.printTable(name);
     }
 
     /**
@@ -124,4 +127,12 @@ public class Node
     public void setNeighbours(HashMap<String, Integer> neighbours) {
         this.neighbours = neighbours;
     }
+
+	public RoutingTable getRoutingTable() {
+		return routingTable;
+	}
+
+	public void setRoutingTable(RoutingTable routingTable) {
+		this.routingTable = routingTable;
+	}
 }
