@@ -29,10 +29,7 @@ public class MainWindow{
 
 	        UI.addButton("Start", this::start);
 	        UI.addButton("Show Routing tables", this::showRoutingTables);
-	        UI.addButton("Redraw", this::redraw);
-
-
-
+	        UI.addButton("Quick", this::quick);
 	    }
 
 	    /**
@@ -53,12 +50,6 @@ public class MainWindow{
 	    		 for(Node node : this.nodes){//I check all the nodes of the graph
 				        	updateNeighbours(node);//I update the neighbours of the node
 			     }
-	    		 for(Node n : nodes) {//I iterate through all the nodes
-	 	    		if(n.getName().equals("A") || n.getName().equals("B")) {//If it is the desired node
-	 	    			n.printRoutingTable();
-	 	    			UI.print("\n\n");
-	 	    		}
-	 			}
 	    	}
 		}
 
@@ -87,15 +78,20 @@ public class MainWindow{
 				for(int i = 0; i < columnSender.getDestinations().size(); i++) {//I go through all the elements of the column
 					updateOperations(columnSender, neighbour, columnReceiver,  receiverWeight, destinations[i]);
 				}
-
-
 			}
 		}
 
+		/**
+		 * It makes the checks in order to know if it has to update a value
+		 * @param columnSender: the column of the sender which is going to be used
+		 * @param neighbour: The node which is going to be updated
+		 * @param columnReceiver: The column of the receiver that has the row which will be tried to be updated
+		 * @param receiverWeight: The cost of going from the sender to the receiver
+		 * @param row: the row where is the value we want to update
+		 */
 		private void updateOperations(NeighbourDestinations columnSender, Node neighbour, NeighbourDestinations columnReceiver, int receiverWeight, String row) {
 			//Variables that I will need
 
-			String columnName = columnSender.getNeighbourName();//I get the name of the column of the sender which I am going to use
 			int minValue = columnSender.getDestinations().get(row);
 			int actualValue = columnReceiver.getDestinations().get(row);//The actual value of the RoutingTable
 
@@ -103,23 +99,6 @@ public class MainWindow{
 				columnReceiver.getDestinations().remove(row);//I delete the former value
 				columnReceiver.getDestinations().put(row, minValue + receiverWeight);//I update the column
 			}
-		}
-
-		/**
-		 * I calculate the minimum value of a column of the routing table
-		 * @param destinations
-		 * @param column: the column of the routing table
-		 * @return the minimum value
-		 */
-		private int calculateMinColumn(NeighbourDestinations column, String[] destinations) {
-			int min = 999;
-			for(int i = 0; i < destinations.length; i++) {//I go through all the values of the column
-				int actualValue = column.getDestinations().get(destinations[i]);//I get the actual value of the column
-				if(min > actualValue) {//I have a new min
-					min = actualValue;
-				}
-			}
-			return min;
 		}
 
 		/**
@@ -245,7 +224,6 @@ public class MainWindow{
             checkForEdges.add(newEdge);//I add a new edge
 		}
 
-
 		/**
 	     * It ask to the user to show a specific RoutingTable
 	     */
@@ -274,9 +252,11 @@ public class MainWindow{
 	    	}
 	    }
 
-	    public void redraw() {
+	    public void quick() {
 	    	load();
 	    	start();
+	    	draw();
+	    	showRoutingTables();
 	    }
 
 	    public Vector<Node> getNodes() {
