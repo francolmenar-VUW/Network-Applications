@@ -2,7 +2,6 @@ package lab4;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import ecs100.UI;
@@ -26,7 +25,6 @@ public class RoutingTable {
 		neighbourToDestination = new ArrayList<NeighbourDestinations>();
 		for(HashMap.Entry<String, Integer> n : neighbours.entrySet()) {//I iterate through all the entries of the HashMap
 			newNeighbour(n.getKey(), n.getValue());//I create a new column of the RoutingTable
-
 		}
 	}
 
@@ -41,23 +39,66 @@ public class RoutingTable {
 		neighbourToDestination.add(newNeighbour);//I add the new neighbour-column
 	}
 
-	public ArrayList<NeighbourDestinations> getNeighbourToDestination() {
-		return neighbourToDestination;
+
+	/**
+	 * It draws the costs of the table
+	 * @param i: iteration of the loop
+	 */
+	private void drawCosts(int i) {
+		int x = sideOfSquare, y = sideOfSquare ;//The start coordinates of the table
+		NeighbourDestinations currentColumn = neighbourToDestination.get(i);
+		for(int j = 0; j < destinations.length; j++) {
+			System.out.println("Costs of destination " + destinations[j] + ": " + currentColumn.getDestinations().get(destinations[j]));
+			System.out.println(destinations[j]);
+			String cost = Integer.toString(currentColumn.getDestinations().get(destinations[j]));//I get the current cost
+			if(j == 0) {
+				System.out.println(cost + "First");
+				drawString(cost, (i + 2)* x, y + sideOfSquare);
+			}
+			else {
+				drawString(cost, (i + 2) * x, (y * j) + sideOfSquare * 2);
+			}
+		}
 	}
 
-	public void setNeighbourToDestination(ArrayList<NeighbourDestinations> neighbourToDestination) {
-		this.neighbourToDestination = neighbourToDestination;
-	}
 
 	/**
 	 * It prints the routing table
-	 * @param name: The String that contains the name of the node
+	 * @param message: The String that contains the name of the node
 	 * @return: the routing table as a String
 	 */
-	public void printTable(String name) {
+	public void printTable(String message) {
+		for(int i = 0; i <= destinations.length; i++) {//I go through all the rows
+			for(int j = 0; j <= neighbourToDestination.size(); j++) {//I go through all the columns
+				if(i == 0) {//In the first row it is not print a destination
+					if(j != 0) {//In the same position it is written the Dx
+						message += "\t" + neighbourToDestination.get(j-1).getNeighbourName();
+					}
+				}
+				else {//Not the first iteration
+					if(j != 0) {//In the same position it is written the Dx
+						int cost = neighbourToDestination.get(j-1).getDestinations().get(destinations[i-1]);//I get the cost
+						if(cost == 999) {//Infinity
+							message += "\t\u221e";
+						}
+						else {//I known number
+							message += "\t" + Integer.toString(cost);
+						}
+					}
+					else {//First column
+						message += "  " + destinations[i-1];
+					}
+				}
+			}
+			message +="\n\n";
+		}
+		UI.print(message);
+
+		/*
 		UI.clearGraphics();
 		UI.setColor(Color.black);
 		drawTable(name);
+		*/
 	}
 
 	/**
@@ -103,27 +144,6 @@ public class RoutingTable {
 	}
 
 
-	/**
-	 * It draws the costs of the table
-	 * @param i: iteration of the loop
-	 */
-	private void drawCosts(int i) {
-		int x = sideOfSquare, y = sideOfSquare ;//The start coordinates of the table
-		NeighbourDestinations currentColumn = neighbourToDestination.get(i);
-		for(int j = 0; j < destinations.length; j++) {
-			System.out.println("Costs of destination " + destinations[j] + ": " + currentColumn.getDestinations().get(destinations[j]));
-			System.out.println(destinations[j]);
-			String cost = Integer.toString(currentColumn.getDestinations().get(destinations[j]));//I get the current cost
-			if(j == 0) {
-				System.out.println(cost + "First");
-				drawString(cost, (i + 2)* x, y + sideOfSquare);
-			}
-			else {
-				drawString(cost, (i + 2) * x, (y * j) + sideOfSquare * 2);
-			}
-		}
-	}
-
 
 	/**
 	 * It draws a String in a certain part of the window
@@ -151,5 +171,37 @@ public class RoutingTable {
 			y += sideOfSquare;//To the next row
 		}
 	}
+
+	/**
+	 * It returns a specific column of the routing table
+	 * @param name: It is the header of the column we want to return
+	 * @return the column if it is found and null otherwise
+	 */
+	public NeighbourDestinations returnNeighbourColumn(String name) {
+		for(int i = 0; i < neighbourToDestination.size(); i++) {//I go through all the columns of the routing table
+			String neighbourName = neighbourToDestination.get(i).getNeighbourName();//I get the header of the column
+			if(name.equals(neighbourName)){//If the name is the same as the header it is the wanted column
+				return neighbourToDestination.get(i);//I return the column
+			}
+		}
+		return null;//The column was not found
+	}
+
+	public ArrayList<NeighbourDestinations> getNeighbourToDestination() {
+		return neighbourToDestination;
+	}
+
+	public void setNeighbourToDestination(ArrayList<NeighbourDestinations> neighbourToDestination) {
+		this.neighbourToDestination = neighbourToDestination;
+	}
+
+	public String[] getDestinations() {
+		return destinations;
+	}
+
+	public void setDestinations(String[] destinations) {
+		this.destinations = destinations;
+	}
+
 
 }

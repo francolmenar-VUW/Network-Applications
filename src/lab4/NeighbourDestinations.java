@@ -19,15 +19,12 @@ public class NeighbourDestinations {
 	 */
 	private void initializeDestinations(Integer cost, String[] destinations) {
 		this.destinations = new HashMap<String, Integer>();
-		System.out.println(cost + this.neighbourName);
 		for(String s : destinations) {
-			System.out.println("String " + s + " in the column "+ this.neighbourName);
 			if(this.neighbourName.equals(s)) {//If it is the same name we have to save the cost of it
-				System.out.println("Inside");
 				this.destinations.put(this.neighbourName, cost);//I store the new cost
 			}
 			else {//The cost is unknown
-				this.destinations.put(s, -1);//I store the -1 as - infinity
+				this.destinations.put(s, 999);//I store the -1 as - infinity
 			}
 		}
 	}

@@ -12,8 +12,6 @@ package lab4;
 
 import java.util.HashMap;
 
-import ecs100.UI;
-
 public class Node
 {
     private String name; // the node name
@@ -69,7 +67,8 @@ public class Node
      * It prints the RoutingTable
      */
     public void printRoutingTable() {
-    	routingTable.printTable(name);
+    	String message = "D(" + name + ")";
+    	routingTable.printTable(message);
     }
 
     /**

@@ -40,38 +40,83 @@ public class MainWindow{
 	     */
 	    public void start()
 	    {
-	    	initializeVector();
-	        for(Node n : this.nodes){//I check all the nodes of the graph
-	        	sendInfoToUpdate(n);
-	        }
+	    	initializeVector();//I initialize the vector of nodes
+	    	updateVector();//I update the information of the nodes
 	    }
 
 	    /**
+	     * It updates the vector of nodes
+	     */
+	    private void updateVector() {
+	    	 for(Node node : this.nodes){//I check all the nodes of the graph
+		        	updateNeighbours(node);//I update the neighbours of the node
+		        }
+		}
+
+		/**
 	     * It sends the routing table to its neighbours to update them in case it is necessary
 	     * @param node: the node of which is the information we will send
 	     */
-	    private void sendInfoToUpdate(Node node) {
+	    private void updateNeighbours(Node node) {
 	    	RoutingTable routingTable = node.getRoutingTable();//Routingtable of the node
-	        for(NeighbourDestinations neighbourInfo : routingTable.getNeighbourToDestination()){//I check all the columns of the Routingtable
-	        	Node neighbour = returnNodeByName(neighbourInfo.getNeighbourName());//I obtain the node which is the same as the header of the column of the Routingtable
-	        	//updateNode(neighbour, neighbourInfo);I update the info of the node
-	        }
+	    	for(HashMap.Entry<String, Integer> neighbourHash : node.getNeighbours().entrySet()) {//I iterate through all the neighbours
+	    		Node neighbour = returnNodeByName(neighbourHash.getKey());//I obtain the neighbour node
+	        	updateNode(node.getName(), routingTable, neighbour);//I update the RoutingTable of the neighbour
+	    	}
 		}
 
 	    /**
-	     * It returns a certain node of the vector of nodes given its name
-	     * @param name: the name of the node we want to obtain
-	     * @return the node we want to obtain
+	     * It updates the RoutingTable if it is needed
+	     * @param nodeName: The name of the node of which is the information from
+	     * @param routingTable: It is the RoutingTable of nodeName which is send to the neighbour node
+	     * @param neighbour: Node to which is going the information to
 	     */
+		private void updateNode(String nodeName, RoutingTable routingTable, Node neighbour) {
+			NeighbourDestinations columnReceiver = neighbour.getRoutingTable().returnNeighbourColumn(nodeName);//I get the column of the receiver RoutingTable which corresponds to the sender
+			int receiverWeight = getWeight(nodeName,nodeName, neighbour.getRoutingTable());//The cost from the neighbour to the node
+			for(NeighbourDestinations columnSender : routingTable.getNeighbourToDestination()) {//I iterate through all the columns of the routing table of the sender
+				//Variables that I will need
+				String columnName = columnSender.getNeighbourName();//I get the name of the column of the sender which I am going to use
+				int minValue = calculateMinColumn(columnSender, neighbour.getRoutingTable().getDestinations());//I obtain the minimum value of a column
+				int actualValue = columnReceiver.getDestinations().get(columnName);//The actual value of the RoutingTable
 
-		private Node returnNodeByName(String name) {
-			for(int i = 0; i < nodes.size(); i++) {
-        		if(nodes.get(i).getName().equals(name)) {
-        			return nodes.get(i);
-        		}
-        	}
-			return null;
+				if(actualValue > minValue + receiverWeight) {//Check if we have a better value
+					columnReceiver.getDestinations().remove(columnName);//I delete the former value
+					columnReceiver.getDestinations().put(columnName, minValue + receiverWeight);//I update the column
+				}
+			}
 		}
+
+		/**
+		 * I calculate the minimum value of a column of the routing table
+		 * @param destinations
+		 * @param column: the column of the routing table
+		 * @return the minimum value
+		 */
+		private int calculateMinColumn(NeighbourDestinations column, String[] destinations) {
+			int min = 999;
+			for(int i = 0; i < destinations.length; i++) {//I go through all the values of the column
+				int actualValue = column.getDestinations().get(destinations[i]);//I get the actual value of the column
+				if(min > actualValue) {//I have a new min
+					min = actualValue;
+				}
+			}
+			return min;
+		}
+		
+
+		/**
+		 * It returns the weight of going from nodeName to the node which is from the routingTable
+		 * @param rowName: the name of the row where is the value
+		 * @param columnName: The name of the node from we want to know the weight (the name of the column where is the value)
+		 * @param routingTableReceiver: The routing table of the other node of the edge
+		 * @return the weight of the edge
+		 */
+		private int getWeight(String columnName, String rowName, RoutingTable routingTableReceiver) {
+			NeighbourDestinations column = routingTableReceiver.returnNeighbourColumn(columnName);//It is the column I want to get
+			return column.getDestinations().get(rowName);
+		}
+
 
 		/**
 	     * It loads the topology map from user choice
@@ -100,15 +145,6 @@ public class MainWindow{
 	    }
 
 	    /**
-	     * It initializes the vector of nodes
-	     */
-	    private void initializeVector() {
-			for(Node n : nodes) {//I iterate through all the nodes
-				n.initialise(destinations);
-			}
-		}
-
-		/**
 	     * It creates the array of the names of all the possible destinations
 	     */
 	    private void createDestinations() {
@@ -117,6 +153,15 @@ public class MainWindow{
 			for(Node n : nodes) {//I iterate through all the nodes
 				destinations[i] = n.getName();
 				i++;
+			}
+		}
+
+	    /**
+	     * It initializes the vector of nodes
+	     */
+	    private void initializeVector() {
+			for(Node n : nodes) {//I iterate through all the nodes
+				n.initialise(destinations);
 			}
 		}
 
@@ -188,6 +233,20 @@ public class MainWindow{
 
 	    public Vector<Node> getNodes() {
 			return nodes;
+		}
+
+	    /**
+	     * It returns a certain node of the vector of nodes given its name
+	     * @param name: the name of the node we want to obtain
+	     * @return the node we want to obtain
+	     */
+		private Node returnNodeByName(String name) {
+			for(int i = 0; i < nodes.size(); i++) {
+        		if(nodes.get(i).getName().equals(name)) {
+        			return nodes.get(i);
+        		}
+        	}
+			return null;
 		}
 
 		public void setNodes(Vector<Node> nodes) {
