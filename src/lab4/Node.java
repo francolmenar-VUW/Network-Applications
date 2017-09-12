@@ -39,7 +39,7 @@ public class Node
      */
     public void initialise(String[] destinations)
     {
-        this.routingTable = new RoutingTable(neighbours, destinations);
+        this.routingTable = new RoutingTable(neighbours, destinations, name);
     }
 
     /**

@@ -8,12 +8,13 @@ import ecs100.UI;
 
 
 public class RoutingTable {
+    private String name; // the node name of the RoutingTable
 	private ArrayList<NeighbourDestinations> neighbourToDestination;//It is a list of the columns of the routing table
 	private String [] destinations;//The name of all the possible destinations
-	private final int sideOfSquare = 50;
 
-	public RoutingTable(HashMap<String, Integer> neighbours, String[] destinationsName) {
+	public RoutingTable(HashMap<String, Integer> neighbours, String[] destinationsName, String name) {
 		this.destinations = destinationsName;//I set all the destinations' names
+		this.name = name;
 		initializeRoutingTable(neighbours);
 	}
 
@@ -41,135 +42,38 @@ public class RoutingTable {
 
 
 	/**
-	 * It draws the costs of the table
-	 * @param i: iteration of the loop
-	 */
-	private void drawCosts(int i) {
-		int x = sideOfSquare, y = sideOfSquare ;//The start coordinates of the table
-		NeighbourDestinations currentColumn = neighbourToDestination.get(i);
-		for(int j = 0; j < destinations.length; j++) {
-			System.out.println("Costs of destination " + destinations[j] + ": " + currentColumn.getDestinations().get(destinations[j]));
-			System.out.println(destinations[j]);
-			String cost = Integer.toString(currentColumn.getDestinations().get(destinations[j]));//I get the current cost
-			if(j == 0) {
-				System.out.println(cost + "First");
-				drawString(cost, (i + 2)* x, y + sideOfSquare);
-			}
-			else {
-				drawString(cost, (i + 2) * x, (y * j) + sideOfSquare * 2);
-			}
-		}
-	}
-
-
-	/**
 	 * It prints the routing table
 	 * @param message: The String that contains the name of the node
 	 * @return: the routing table as a String
 	 */
 	public void printTable(String message) {
 		for(int i = 0; i <= destinations.length; i++) {//I go through all the rows
-			for(int j = 0; j <= neighbourToDestination.size(); j++) {//I go through all the columns
-				if(i == 0) {//In the first row it is not print a destination
-					if(j != 0) {//In the same position it is written the Dx
-						message += "\t" + neighbourToDestination.get(j-1).getNeighbourName();
-					}
-				}
-				else {//Not the first iteration
-					if(j != 0) {//In the same position it is written the Dx
-						int cost = neighbourToDestination.get(j-1).getDestinations().get(destinations[i-1]);//I get the cost
-						if(cost == 999) {//Infinity
-							message += "\t\u221e";
-						}
-						else {//I known number
-							message += "\t" + Integer.toString(cost);
+			if(i == 0 || destinations[i-1].equals(name) == false) {//If it is not the same row as itself
+				for(int j = 0; j <= neighbourToDestination.size(); j++) {//I go through all the columns
+					if(i == 0) {//In the first row it is not print a destination
+						if(j != 0) {//In the same position it is written the Dx
+							message += "\t" + neighbourToDestination.get(j-1).getNeighbourName();
 						}
 					}
-					else {//First column
-						message += "  " + destinations[i-1];
+					else {//Not the first iteration
+						if(j != 0) {//In the same position it is written the Dx
+							int cost = neighbourToDestination.get(j-1).getDestinations().get(destinations[i-1]);//I get the cost
+							if(cost == 999) {//Infinity
+								message += "\t\u221e";
+							}
+							else {//I known number
+								message += "\t" + Integer.toString(cost);
+							}
+						}
+						else {//First column
+							message += "  " + destinations[i-1];
+						}
 					}
 				}
+				message +="\n\n";
 			}
-			message +="\n\n";
 		}
 		UI.print(message);
-
-		/*
-		UI.clearGraphics();
-		UI.setColor(Color.black);
-		drawTable(name);
-		*/
-	}
-
-	/**
-	 * It draws the table empty
-	 * @param name: The String that contains the name of the node
-	 */
-	private void drawTable(String name) {
-		drawHorizontalLines();
-		drawParallelLines(name);
-
-	}
-
-	/**
-	 * It prints the parallel lines of the table
-	 * @param name: The String that contains the name of the node
-	 */
-	private void drawParallelLines(String name) {
-		int x = sideOfSquare * 2, y = sideOfSquare;//The start coordinates of the table
-		for(int i = 0; i <= neighbourToDestination.size(); i++ ) {//I go through all the neigbours
-			UI.drawLine(x, y, x,  sideOfSquare *(destinations.length+2));
-			drawParallelInfo(i, x, y, name);
-			x += sideOfSquare;//To the next column
-		}
-	}
-
-	/**
-	 * It draws the rows'header
-	 * @param i: iteration of the loop
-	 * @param x: x coordinate of the square where the String has to be drawn
-	 * @param y: y coordinate of the square where the String has to be drawn
-	 * @param name: The String that contains the name of the node
-	 */
-	private void drawParallelInfo(int i, int x, int y, String name) {
-		if(i != neighbourToDestination.size()) {//The last line has no letter
-			String columnName = neighbourToDestination.get(i).getNeighbourName();
-			drawString(columnName, x , y);//I draw the name of the header
-			drawCosts(i);//I draw the costs of this column
-		}
-		else {//In the last iteration I write the name of the node which is the RoutingTable
-			String columnName = "D(" + name + ")";
-			drawString(columnName, sideOfSquare - sideOfSquare/5 , sideOfSquare);//I draw the name of the header
-		}
-	}
-
-
-
-	/**
-	 * It draws a String in a certain part of the window
-	 * @param message: The String to be drawn
-	 * @param x: x coordinate of the square where the String has to be drawn
-	 * @param y: y coordinate of the square where the String has to be drawn
-	 */
-
-	private void drawString(String message, int x, int y) {
-		UI.drawString(message, x + (sideOfSquare/2) - (sideOfSquare/15), y + (sideOfSquare/2));	//I calculate more or less the center of the square to draw the String there
-	}
-
-
-	/**
-	 * It draws the horizontal lines of the table
-	 */
-	private void drawHorizontalLines() {
-		int x = sideOfSquare, y = sideOfSquare * 2;//The start coordinates of the table
-		for(int i = 0; i <= destinations.length; i++ ) {//I go through all the destinations
-			UI.drawLine(x, y, sideOfSquare *(neighbourToDestination.size()+2), y);
-			if(i != destinations.length) {//The last line has no letter
-				String rowName = destinations[i];
-				drawString(rowName, x , y);//I draw the name of the header
-			}
-			y += sideOfSquare;//To the next row
-		}
 	}
 
 	/**
@@ -203,5 +107,12 @@ public class RoutingTable {
 		this.destinations = destinations;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 }
