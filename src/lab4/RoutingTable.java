@@ -1,6 +1,5 @@
 package lab4;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,7 +38,6 @@ public class RoutingTable {
 		NeighbourDestinations newNeighbour = new NeighbourDestinations(name, cost, destinations);//I create a new column of the RoutingTable
 		neighbourToDestination.add(newNeighbour);//I add the new neighbour-column
 	}
-
 
 	/**
 	 * It prints the routing table

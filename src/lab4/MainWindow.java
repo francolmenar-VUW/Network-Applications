@@ -17,6 +17,7 @@ public class MainWindow{
 
 		private Vector<Node> nodes = new Vector<Node>();
 		private String [] destinations;
+		private boolean same;//It is used to know when an update is performed
 
 
 		/**
@@ -26,15 +27,15 @@ public class MainWindow{
 	    {
 	        UI.addButton("load map", this::load);
 	        UI.addButton("Draw Nodes", this::draw);
-
 	        UI.addButton("Start", this::start);
 	        UI.addButton("Show Routing tables", this::showRoutingTables);
-	        UI.addButton("Quick", this::quick);
+	        UI.addButton("New cost", this::newCost);
+	        UI.addButton("Root", this::root);
+	        UI.addButton("Measure the time", this::time);
 	    }
 
 	    /**
-	     *  1. initialise DONE
-	        2. update neighbours
+	     * It initializes the RoutingTables and perform the updates
 	     */
 	    public void start()
 	    {
@@ -46,10 +47,12 @@ public class MainWindow{
 	     * It updates the vector of nodes
 	     */
 	    private void updateVector() {
-	    	for(int i = 0; i < 2; i++) {
-	    		 for(Node node : this.nodes){//I check all the nodes of the graph
-				        	updateNeighbours(node);//I update the neighbours of the node
-			     }
+	    	this.same = false;
+	    	while(!this.same) {//While there is any change
+	    		this.same = true;
+	    		for(Node node : this.nodes){//I check all the nodes of the graph
+		        	updateNeighbours(node);//I update the neighbours of the node
+		    	}
 	    	}
 		}
 
@@ -98,6 +101,7 @@ public class MainWindow{
 			if(actualValue > minValue + receiverWeight) {//Check if we have a better value
 				columnReceiver.getDestinations().remove(row);//I delete the former value
 				columnReceiver.getDestinations().put(row, minValue + receiverWeight);//I update the column
+				this.same = false;
 			}
 		}
 
@@ -120,6 +124,7 @@ public class MainWindow{
 	    {
 	        try
 	        {
+	        	nodes.removeAllElements();//I empty the vector
 	            Scanner scan = new Scanner (new File(UIFileChooser.open("Select Map File")));
 	            while ( scan.hasNext() )
 	            {
@@ -228,38 +233,166 @@ public class MainWindow{
 	     * It ask to the user to show a specific RoutingTable
 	     */
 	    public void showRoutingTables() {
-	    	while(true) {
-	    		UI.askString("What Routingtable do you want to display?");
-		    	String routingtableToPrint = UI.next();
-		    	switch(routingtableToPrint) {
-		    	case "all"://Printing all the tables
-		    		for(Node n : nodes) {//I iterate through all the nodes
-			    			n.printRoutingTable();
-			    			UI.print("\n\n");
-					}
-		    		break;
-		    	case "clear"://Clear the text pane
-		    		UI.clearText();
-		    		break;
-		    	default://Print a specific table
-			    	for(Node n : nodes) {//I iterate through all the nodes
-			    		if(n.getName().equals(routingtableToPrint)) {//If it is the desired node
-			    			n.printRoutingTable();
-			    		}
-			    	}
-			    	break;
-				}
-	    	}
+	    	UI.askString("What Routingtable do you want to display?");
+	    	String routingtableToPrint = UI.next();
+	    	switch(routingtableToPrint) {
+	    	case "all"://Printing all the tables
+	    		printAll();
+	    		break;
+	    	case "clear"://Clear the text pane
+	    		UI.clearText();
+	    		break;
+	    	default://Print a specific table
+		    	for(Node n : nodes) {//I iterate through all the nodes
+		    		if(n.getName().equals(routingtableToPrint)) {//If it is the desired node
+		    			n.printRoutingTable();
+		    		}
+		    	}
+		    	break;
+			}
 	    }
 
-	    public void quick() {
-	    	load();
+	    /**
+	     * It prints all the RoutingTables
+	     */
+	   private void printAll() {
+		   for(Node n : nodes) {//I iterate through all the nodes
+   			n.printRoutingTable();
+   			UI.print("\n\n");
+		   }
+		}
+
+	    /**
+	     * It changes a cost of a edge and show the new RoutingTable
+	     */
+	    private void newCost() {
+	    	UI.askString("What edge do you want to change? (Ex: A B changes the edge A-B)\n");
+	    	String userInput = UI.nextLine();
+	    	String [] vertexes = userInput.split("\\s+");//I split the string into the two vertex names
+	    	if(!checksOfInput(vertexes)) {return;}//The input is wrong
+	    	UI.askString("What new cost do you want to introduce?\n");
+	    	int cost = UI.nextInt();
+	    	UI.print("\t\tThe old RoutingTables are:\n\n\n");
+	    	printAll();
+	    	UI.print("\n\n\t\tAnd the new RoutingTables are:\n\n\n");
+	    	changeCost(vertexes[0], vertexes[1], cost);//I change the cost of the edge in both directions
+	    	changeCost(vertexes[1], vertexes[0], cost);
 	    	start();
 	    	draw();
-	    	showRoutingTables();
+	    	printAll();
 	    }
 
-	    public Vector<Node> getNodes() {
+	    /**
+	     * It changes a previous cost in the table of string from de edge string-string1
+	     * @param string: first vertex
+	     * @param string2: second edge
+	     * @param cost: the new cost
+	     */
+	    private void changeCost(String string, String string2, int cost) {
+	    	Node node = returnNodeByName(string);//I obtain the node of one vertex
+	    	node.getNeighbours().replace(string2, cost);
+		}
+
+
+		/**
+	     * It checks the correctness of the input
+	     * @param vertexes
+	     * @return
+	     */
+	    private boolean checksOfInput(String[] vertexes) {
+	    	if(vertexes.length != 2) {//It checks that the format is the correct one
+	    		UI.print("Wrong format sorry\n");
+	    		return false;
+	    	}
+	    	Node node = returnNodeByName(vertexes[0]);//I obtain the node of one vertex
+	    	if(node == null) {//I check that the node exists
+	    		UI.print("The edge does not exist\n");
+	    		return false;
+	    	}
+	    	NeighbourDestinations columnToGetNode2 = node.getRoutingTable().returnNeighbourColumn(vertexes[1]);
+	    	if (columnToGetNode2 == null) {//I check that the edge exists
+	    		UI.print("The edge does not exist\n");
+	    		return false;
+			}
+	    	if( columnToGetNode2.getDestinations().get(vertexes[1]) == null) {
+	    		UI.print("The edge does not exist\n");
+	    		return false;
+	    	}
+			return true;
+		}
+
+	    /**
+	     *  It chooses randomly chose a source and a destination node and show
+	     *  how data is routed from the former to the latter.
+	     */
+	    private void root() {
+			int [] aux = generateRandonNumbers();
+			Node source = nodes.get(aux[0]), destination = nodes.get(aux[1]);//I get the nodes that I am going to use
+			UI.print("\n\n\t\tData is going to go from " + source.getName() + "  to " + destination.getName() + "\n\n");
+			while(!source.getName().equals(destination.getName())) {//until we found the destination
+				source = returnNodeByName(getBestEdge(source, destination.getName()));//I get the next node
+			}
+	    }
+
+	    /**
+	     * It gives the best edge to go to the node name from the source node
+	     * @param source: origin node
+	     * @param name: the name of the destination node
+	     * @return the name of the node which is the one in the best path
+	     */
+	    private String getBestEdge(Node source, String name) {
+	    	int cost = 999;
+	    	String auxName = "";
+			for(int i = 0; i < source.getRoutingTable().getNeighbourToDestination().size(); i++) {//I go through all the columns of the RoutingTable
+				NeighbourDestinations aux = source.getRoutingTable().getNeighbourToDestination().get(i);
+				for(HashMap.Entry<String, Integer> n : aux.getDestinations().entrySet()) {//I iterate through all the rows
+					if(n.getKey().equals(name) && n.getValue() < cost) {//I check if it is a better path
+						cost = n.getValue();//I copy the values
+						auxName = aux.getNeighbourName();
+					}
+				}
+			}
+			UI.print("I from the node " + source.getName() + " to the node " + auxName +  "\n");
+	    	return auxName;
+		}
+
+
+	    /**
+	     * It creates two different random numbers and return and array with them
+	     * The random numbers are between 0 and the size of the vector of nodes
+	     * @return the two random numbers
+	     */
+		private int[] generateRandonNumbers() {
+			int [] aux = new int [2];
+	    	for(int i = 0; i < 2; i++){//I check all the nodes of the graph
+	    		if(i == 0) {//I create the first random number
+	    			aux[0] = (int)(Math.random() * nodes.size());
+	    		}
+	    		else {
+	    			boolean newName = false;
+	    			while(!newName) {//I check that both random numbers are different
+		    			aux[1] = (int)(Math.random() * nodes.size());
+		    			if(aux[0] != aux[1]) {
+		    				newName = true;
+		    			}
+	    			}
+	    		}
+	    	}
+	    	return aux;
+		}
+
+		/**
+		 * It Measure the time it takes for the routing table to be generated
+		 */
+		private void time(){
+			long startTime = System.nanoTime();
+			start();
+			long endTime = System.nanoTime();
+			long duration = (endTime - startTime) / 1000000;
+		     UI.print("\n\nThe time that it takes for the routing table to be generated is " + duration + " milliseconds");
+		}
+
+		public Vector<Node> getNodes() {
 			return nodes;
 		}
 
@@ -287,6 +420,16 @@ public class MainWindow{
 
 		public void setDestinations(String[] destinations) {
 			this.destinations = destinations;
+		}
+
+
+		public boolean getSame() {
+			return same;
+		}
+
+
+		public void setSame(boolean same) {
+			this.same = same;
 		}
 
 }
